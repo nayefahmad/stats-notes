@@ -1,0 +1,58 @@
+---
+title: "Power of t-test of regression slope coefficient"
+author: "Nayef"
+date: "3/28/2022"
+output: 
+   github_document: 
+     toc: true
+     number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview 
+
+
+
+# Libraries 
+```{r}
+library(powerMediation)
+
+```
+
+
+# Analysis 
+
+```{r}
+y <- c(25L, 22L, 20L, 10L, 11L, 15L, 31L, 12L, 11L, 11L, 18L, 16L, 11L, 
+       16L, 25L, 27L, 19L, 11L, 11L, 19L, 11L, 10L, 15L, 10L, 18L, 6L, 
+       11L, 9L, 21L, 9L, 14L, 17L)
+x <- seq(1:32)
+stopifnot(length(x) == length(y))
+
+m <- lm(y~x)
+
+plot(x, y)
+lines(y)
+abline(m, col = "blue")
+
+```
+
+
+```{r}
+var_y <- var(y)
+sd_y <- sd(y)
+
+var_x <- var(x)
+sd_x <- sd(x)
+
+power <- power.SLR(n=32, 
+                   lambda.a = -0.2, 
+                   sigma.x = sd_x, 
+                   sigma.y = sd_y, 
+                   alpha = .05, 
+                   verbose = TRUE)
+```
+
