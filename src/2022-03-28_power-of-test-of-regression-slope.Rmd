@@ -13,6 +13,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Overview 
+Traditional NHST has a lot of issues - e.g. see [this list](). One of these is that statistical significance tends to be over-interpreted in low-powered studies. This post examines the problem of how to determine the power associated with the t-test of a regression coefficient. 
+
+Related links: 
+
+- Post-hoc power is kinda useless
 
 
 
@@ -49,10 +54,12 @@ var_x <- var(x)
 sd_x <- sd(x)
 
 power <- power.SLR(n=32, 
-                   lambda.a = -0.2, 
+                   lambda.a = -.2,  # try -.293
                    sigma.x = sd_x, 
                    sigma.y = sd_y, 
                    alpha = .05, 
                    verbose = TRUE)
 ```
+
+**The power is `r round(power$power, 3)`** 
 
