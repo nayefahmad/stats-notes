@@ -43,8 +43,8 @@ y = underlying_relationship + np.random.normal(scale=p.sigma, size=p.num_rows)
 
 title = "Observed data and underlying relationship"
 fig, ax = plt.subplots()
-ax.plot(x, y, "x", label="observerd_data")
-ax.plot(x, underlying_relationship, "x", label="underlying_relationship")
+ax.plot(x, y, "o", mfc="none", label="observerd_data")
+ax.plot(x, underlying_relationship, label="underlying_relationship")
 ax.set_title(title)
 ax.set_ylim(y.min() - 3, y.max() + 10)
 ax.set_xlim(x.min() - 0.5, x.max() + 0.5)
