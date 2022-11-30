@@ -34,7 +34,7 @@ class Params:
     x_sigma: float
 
 
-p = Params(num_rows=200, alpha=2, beta=[5], sigma=0.5, x_mean=5, x_sigma=1)
+p = Params(num_rows=500, alpha=2, beta=[5], sigma=0.5, x_mean=5, x_sigma=1)
 
 np.random.seed(0)
 x = np.random.normal(loc=p.x_mean, scale=p.x_sigma, size=p.num_rows)
@@ -55,7 +55,7 @@ fig.show()
 
 # Unexplained variance without systematic factor
 
-x_centered = x - x.mean()
+y_centered = y - y.mean()
 
 
 # Unexplained variance with systematic factor
@@ -77,10 +77,10 @@ resids = y - train_preds
 title = 'Comparing "unexplained variance" with \nand without systematic factor'
 subtitles = ["Without systematic factor", "With systematic factor"]
 fig = plt.figure()
-for index, var in enumerate([x_centered, resids]):
+for index, var in enumerate([y_centered, resids]):
     ax = plt.subplot(2, 1, index + 1)
     ax.hist(var)
-    ax.set_xlim(-10, 10)
+    ax.set_xlim(-15, 15)
     ax.set_title(subtitles[index])
 plt.suptitle(title, fontweight="bold")
 fig.tight_layout()
