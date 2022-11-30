@@ -74,7 +74,7 @@ resids = y - train_preds
 
 # ## Comparison plots
 
-title = 'Comparing "unexplained variance" with and without systematic factor'
+title = 'Comparing "unexplained variance" with \nand without systematic factor'
 subtitles = ["Without systematic factor", "With systematic factor"]
 fig = plt.figure()
 for index, var in enumerate([x_centered, resids]):
@@ -82,6 +82,6 @@ for index, var in enumerate([x_centered, resids]):
     ax.hist(var)
     ax.set_xlim(-10, 10)
     ax.set_title(subtitles[index])
-plt.suptitle(title)
+plt.suptitle(title, fontweight="bold")
 fig.tight_layout()
 fig.show()
