@@ -21,6 +21,7 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.linear_model import LinearRegression
 
 
 @dataclass
@@ -29,20 +30,58 @@ class Params:
     alpha: float
     beta: List[float]
     sigma: float
+    x_mean: float
+    x_sigma: float
 
 
-p = Params(num_rows=200, alpha=2, beta=[5], sigma=0.5)
+p = Params(num_rows=200, alpha=2, beta=[5], sigma=0.5, x_mean=5, x_sigma=1)
 
-x_range = (0, 5)
-
-x = np.linspace(x_range[0], x_range[1], p.num_rows)
+np.random.seed(0)
+x = np.random.normal(loc=p.x_mean, scale=p.x_sigma, size=p.num_rows)
 underlying_relationship = p.alpha + p.beta * x
 y = underlying_relationship + np.random.normal(scale=p.sigma, size=p.num_rows)
 
+title = "Observed data and underlying relationship"
 fig, ax = plt.subplots()
 ax.plot(x, y, "x", label="observerd_data")
 ax.plot(x, underlying_relationship, "x", label="underlying_relationship")
-ax.set_title("Observed data and underlying relationship")
-ax.set_ylim(-3, 40)
+ax.set_title(title)
+ax.set_ylim(y.min() - 3, y.max() + 10)
+ax.set_xlim(x.min() - 0.5, x.max() + 0.5)
 ax.legend()
+fig.show()
+
+# ## Set up data for comparison
+
+# Unexplained variance without systematic factor
+
+x_centered = x - x.mean()
+
+
+# Unexplained variance with systematic factor
+
+X = x.reshape(-1, 1)
+model = LinearRegression()
+model.fit(X, y)
+coeffs = model.coef_
+
+thresh = 0.1
+assert abs(coeffs[0] - p.beta[0]) < thresh
+
+train_preds = model.predict(X)
+resids = y - train_preds
+
+
+# ## Comparison plots
+
+title = 'Comparing "unexplained variance" with and without systematic factor'
+subtitles = ["Without systematic factor", "With systematic factor"]
+fig = plt.figure()
+for index, var in enumerate([x_centered, resids]):
+    ax = plt.subplot(2, 1, index + 1)
+    ax.hist(var)
+    ax.set_xlim(-10, 10)
+    ax.set_title(subtitles[index])
+plt.suptitle(title)
+fig.tight_layout()
 fig.show()
