@@ -27,7 +27,16 @@ df.head()
 
 # ## Plotting with seaborn
 
-fig = sns.displot(df, x="value", hue="variable", kind="kde", color="blue")
+palette = sns.color_palette(["grey"], len(df["variable"].unique()))
+fig = sns.displot(
+    df,
+    x="value",
+    hue="variable",
+    kind="kde",
+    color="blue",
+    palette=palette,
+    legend=False,
+)
 plt.show()
 
 
