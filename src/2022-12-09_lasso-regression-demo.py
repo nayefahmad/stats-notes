@@ -37,7 +37,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from sklearn.datasets import load_diabetes
-from sklearn.linear_model import ElasticNetCV, LassoCV, RidgeCV
+from sklearn.linear_model import ElasticNetCV, LassoCV, LinearRegression, RidgeCV
 
 # ## Data setup
 diabetes = load_diabetes()
@@ -126,11 +126,17 @@ plt.show()
 
 # ### Models
 
+model_lm = LinearRegression()
 model_ridge = RidgeCV(cv=5)
 model_lasso = LassoCV(cv=5)
 model_elastic_net = ElasticNetCV(cv=5)
 
-models = [model_ridge, model_lasso, model_elastic_net]
+models = {
+    1: model_lm,
+    2: model_ridge,
+    3: model_lasso,
+    4: model_elastic_net,
+}
 predictor_sets = ["all", "x_07", "x_07_x_02"]
 
 
@@ -144,7 +150,7 @@ def identify_predictors(predictor_str: str, df: pd.DataFrame) -> pd.DataFrame:
 
 
 results = {}
-for model in models:
+for model_id, model in models.items():
     for predictors in predictor_sets:
         df_X = identify_predictors(predictors, df_diabetes)
         X = df_X.to_numpy()
@@ -162,7 +168,10 @@ for model in models:
             columns={0: "variable", 1: "coeff"}
         )
 
-        results[f"{model} with predictors: {predictors}"] = {
+        if type(model) == LinearRegression:
+            model.alpha_ = None
+
+        results[f"{model_id}-{model} with predictors: {predictors}"] = {
             "alpha": model.alpha_,
             "score": score,
             "coeffs": coefs_named,
