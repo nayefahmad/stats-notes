@@ -1,4 +1,4 @@
-# # Lasso regression and decision trees as tools for EDA
+# # Regularized regression and random forests as tools for EDA
 # 2022-12-09
 
 # ## Overview
@@ -9,22 +9,37 @@
 
 # Each of these 10 feature variables have been mean centered and scaled by the
 # standard deviation times the square root of n_samples (i.e. the sum of squares of
-# each column totals 1)
+# each column totals 1). This kind of standardization is required before using Lasso
+# and ridge regression (and other regularization-based methods), and in general is a
+# good idea when we want to determine predictor importance. [2][3][4]
+
+# Choosing between ridge, lasso, and elastic net: ridge is a good default unless you
+# suspect that only a few features are useful. Elastic net is preferred over lasso
+# because lasso may behave erratically when p > n or several features are strongly
+# correlated. [5]
 
 # ## References
 
-# - [scikit-learn doc on diabetes dataset](https://scikit-learn.org/stable/datasets/toy_dataset.html#diabetes-dataset)  # noqa
+# 1. [scikit-learn doc on diabetes dataset](https://scikit-learn.org/stable/datasets/toy_dataset.html#diabetes-dataset)  # noqa
+#
+# 2. [When and Why to Standardize Your Data - Builtin.com](https://builtin.com/data-science/when-and-why-standardize-your-data)  # noqa
+#
+# 3. [When and why to standardize a variable - Listendata.com](https://www.listendata.com/2017/04/how-to-standardize-variable-in-regression.html)  # noqa
+#
+# 4. HOML book, p136
+#
+# 5. HOML book, p140
+#
 
 
 # ## Libraries
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from sklearn.datasets import load_diabetes
+from sklearn.linear_model import ElasticNetCV, LassoCV, RidgeCV
 
 # ## Data setup
-
 diabetes = load_diabetes()
 
 df_diabetes = pd.concat(
@@ -90,7 +105,7 @@ fig.show()
 
 # - Assume that we want to interpret the coefficient of x_07
 # - Goal: show that regression allows us to adjust for x_02 and give a better estimate
-#   of the intercept.
+#   of the coefficient.
 
 x_var = "x_07"
 title = f"Response vs {x_var}, by levels of x_02"
@@ -107,3 +122,50 @@ ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 ax.legend(bbox_to_anchor=(1, 0.5))
 ax.set_title(title)
 plt.show()
+
+
+# ### Models
+
+model_ridge = RidgeCV(cv=5)
+model_lasso = LassoCV(cv=5)
+model_elastic_net = ElasticNetCV(cv=5)
+
+models = [model_ridge, model_lasso, model_elastic_net]
+predictor_sets = ["all", "x_07", "x_07_x_02"]
+
+
+def identify_predictors(predictor_str: str, df: pd.DataFrame) -> pd.DataFrame:
+    if predictor_str == "all":
+        return df.drop(columns=["index", "y"])
+    elif predictor_str == "x_07":
+        return df[["x_07"]]
+    elif predictor_str == "x_07_x_02":
+        return df[["x_07", "x_02"]]
+
+
+results = {}
+for model in models:
+    for predictors in predictor_sets:
+        df_X = identify_predictors(predictors, df_diabetes)
+        X = df_X.to_numpy()
+        y = df_diabetes[["y"]].to_numpy()
+
+        model.fit(X, y)
+
+        score = model.score(X, y)
+
+        coefs = model.coef_.squeeze().tolist()
+        coefs = [coefs] if type(coefs) == float else coefs
+        var_names = df_X.columns.to_list()
+        coefs_named = [coef_name for coef_name in zip(var_names, coefs)]
+        coefs_named = pd.DataFrame(coefs_named).rename(
+            columns={0: "variable", 1: "coeff"}
+        )
+
+        results[f"{model} with predictors: {predictors}"] = {
+            "alpha": model.alpha_,
+            "score": score,
+            "coeffs": coefs_named,
+        }
+
+print(results)
