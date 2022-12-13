@@ -20,5 +20,5 @@
     - [Keep your code clean using Black & Pylint & Git Hooks & Pre-commit](https://towardsdatascience.com/keep-your-code-clean-using-black-pylint-git-hooks-pre-commit-baf6991f7376)
     - [pre-commit docs](https://pre-commit.com/#)
 - `.flake8`: config for Flake8. Mainly used to specify max-line-length=88, to match [Black's default](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html)
-- `isort.cfg`: config file used for `isort`. See [docs](https://pycqa.github.io/isort/docs/configuration/black_compatibility.html)
+- `.isort.cfg`: config file used for `isort`. See [docs](https://pycqa.github.io/isort/docs/configuration/black_compatibility.html)
 - `requirements.txt`: python packages used 
