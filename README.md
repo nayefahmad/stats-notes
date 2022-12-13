@@ -6,3 +6,5 @@
 2. [Optimization using the optim function in R](https://github.com/nayefahmad/stats-notes/blob/main/src/2022-11-28_simple-optimization-with-optim.md)
 
 3. [Demonstrating the importance of correctly quantifying chance using systematic variables](https://github.com/nayefahmad/stats-notes/blob/main/src/2022-11-30_unexplained-variance-with-and-without-systematic-factors.ipynb)
+
+4. [Notes on ridge, lasso and elastic net regression](https://github.com/nayefahmad/stats-notes/blob/main/src/2022-12-09_lasso-regression-demo.ipynb)
