@@ -107,12 +107,15 @@ if reprint_plots:
     fig.tight_layout()
     fig.show()
 
-    # ## Analysis focusing on y, x_07, and x_02
 
-    # - Assume that we want to interpret the coefficient of x_07
-    # - Goal: show that regression allows us to adjust for x_02 and give a better
-    #   estimate of the coefficient.
+# ## Analysis focusing on y, x_07, and x_02
 
+# - Assume that we want to interpret the coefficient of x_07
+# - Goal: show that regression allows us to adjust for x_02 and give a better
+#   estimate of the coefficient.
+
+reprint_plots = True
+if reprint_plots:
     x_var = "x_07"
     title = f"Response vs {x_var}, by levels of x_02"
     ax = sns.scatterplot(
@@ -202,21 +205,24 @@ print(results)
 # Also see ISLR, p243.
 
 
-def test_cross_validated_r_squared():
+def test_lasso_cross_validated_r_squared():
     assert type(models[3]) == sklearn.linear_model._coordinate_descent.LassoCV
 
-    model = Lasso(alpha=models[3].alpha_)
-    X = df_diabetes[["x_07", "x_02"]].to_numpy()  # todo: use iris data instead
-    y = df_diabetes[["y"]].to_numpy()
+    X, y = load_diabetes(return_X_y=True)
+
+    model_cv = LassoCV(cv=5)
+    model_cv.fit(X, y)
+    model = Lasso(alpha=model_cv.alpha_)
+    model.fit(X, y)
     scores = cross_val_score(model, X, y, cv=5, scoring="r2")
 
     try:
-        assert scores.mean() == models[3].score(X, y)
+        assert scores.mean() == model.score(X, y)
     except AssertionError as e:
         print(f"AssertionError: {e}")
-        print(f"Difference in score = {scores.mean() - models[3].score(X, y)}")
+        print(f"Difference in score = {scores.mean() - models.score(X, y)}")
 
     print("done")
 
 
-test_cross_validated_r_squared()
+test_lasso_cross_validated_r_squared()
