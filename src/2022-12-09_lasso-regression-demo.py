@@ -26,9 +26,10 @@
 #
 # 3. [When and why to standardize a variable - Listendata.com](https://www.listendata.com/2017/04/how-to-standardize-variable-in-regression.html)  # noqa
 #
-# 4. HOML book, p136
+# 4. HOML book, p136, 140
 #
-# 5. HOML book, p140
+# 5. [Don't use non-CV r-squared as a performance measure for Lasso](https://stats.stackexchange.com/questions/350484/why-is-r-squared-not-a-good-measure-for-regressions-fit-using-lasso)  # noqa
+#    Also see ISLR, p243.
 #
 
 
@@ -184,7 +185,7 @@ for model_id, model in models.items():
         y = df_diabetes[["y"]].to_numpy()
 
         model.fit(X, y)
-        score = model.score(X, y)
+        score = model.score(X, y)  # todo: use cross-validated scores instead
         alpha, coefs_named, intercept = model_params_and_hyperparams(model, df_X)
 
         results[f"{model_id}-{model} with predictors: {predictors}"] = {
@@ -199,30 +200,31 @@ print(results)
 
 # ## Tests
 
-# Is the .score() method of e.g. `LassoCV` giving us a cross-validated r-squared?
-# [See this](https://stats.stackexchange.com/questions/350484/why-is-r-squared-not-a-good-measure-for-regressions-fit-using-lasso)  # noqa
 
-# Also see ISLR, p243.
-
-
-def test_lasso_cross_validated_r_squared():
-    assert type(models[3]) == sklearn.linear_model._coordinate_descent.LassoCV
-
+def test_lassoCV_score_is_not_cross_validated():
+    """
+    Is the .score() method of e.g. `LassoCV` giving us a cross-validated r-squared?
+    [See this](https://stats.stackexchange.com/questions/350484/why-is-r-squared-not-a-good-measure-for-regressions-fit-using-lasso)  # noqa
+    Also see ISLR, p243.
+    """
     X, y = load_diabetes(return_X_y=True)
 
-    model_cv = LassoCV(cv=5)
+    model_cv = LassoCV(cv=5, random_state=2022)
     model_cv.fit(X, y)
-    model = Lasso(alpha=model_cv.alpha_)
+    single_score_cv = model_cv.score(X, y)
+    scores_cv = cross_val_score(model_cv, X, y, cv=5, scoring="r2")
+
+    model = Lasso(alpha=model_cv.alpha_, random_state=2022)
     model.fit(X, y)
+    single_score = model.score(X, y)
     scores = cross_val_score(model, X, y, cv=5, scoring="r2")
 
-    try:
-        assert scores.mean() == model.score(X, y)
-    except AssertionError as e:
-        print(f"AssertionError: {e}")
-        print(f"Difference in score = {scores.mean() - models.score(X, y)}")
+    assert scores_cv.mean() != single_score_cv
+    assert scores.mean() != single_score
 
-    print("done")
+    # True is not expected if LassoCV.score() is actually doing a cross-validated
+    # scoring
+    assert single_score_cv == single_score
 
 
-test_lasso_cross_validated_r_squared()
+test_lassoCV_score_is_not_cross_validated()
