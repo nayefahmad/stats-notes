@@ -26,7 +26,7 @@
 #
 # 3. [When and why to standardize a variable - Listendata.com](https://www.listendata.com/2017/04/how-to-standardize-variable-in-regression.html)  # noqa
 #
-# 4. HOML book, p136, 140
+# 4. HOML book, p136, 140 also mention the requirement to scale the data before lasso.
 #
 # 5. [Don't use non-CV r-squared as a performance measure for Lasso](https://stats.stackexchange.com/questions/350484/why-is-r-squared-not-a-good-measure-for-regressions-fit-using-lasso)  # noqa
 #    Also see ISLR, p243.
@@ -185,12 +185,12 @@ for model_id, model in models.items():
         y = df_diabetes[["y"]].to_numpy()
 
         model.fit(X, y)
-        score = model.score(X, y)  # todo: use cross-validated scores instead
+        r2_cv = cross_val_score(model, X, y, scoring="r2").mean()
         alpha, coefs_named, intercept = model_params_and_hyperparams(model, df_X)
 
         results[f"{model_id}-{model} with predictors: {predictors}"] = {
             "alpha": alpha,
-            "score": score,
+            "score_r2_cv": r2_cv,
             "coeffs": coefs_named,
             "intercept": intercept,
         }
