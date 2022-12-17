@@ -9,6 +9,7 @@
 
 4. [Notes on ridge, lasso and elastic net regression](https://github.com/nayefahmad/stats-notes/blob/main/src/2022-12-09_lasso-regression-demo.ipynb)
 
+5. [Simple demonstration of a random effects model](https://github.com/nayefahmad/stats-notes/blob/main/src/2022-12-15_dummy-variable-vs-random-effect.md)
 
 ## Repo structure 
 
