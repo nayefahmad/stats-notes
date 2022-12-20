@@ -210,11 +210,11 @@ ax.set_xlabel("x1")
 ax.set_ylabel("residuals_lm_y_x2")
 fig.show()
 
-title = "Residuals from x1~x2, vs x1"
+title = "Residuals from x1~x2, vs x2"
 fig, ax = plt.subplots()
-ax.plot(x1, residuals_lm_x1_x2, "o", mfc="none")
+ax.plot(x2, residuals_lm_x1_x2, "o", mfc="none")
 ax.set_title(title)
-ax.set_xlabel("x1")
+ax.set_xlabel("x2")
 ax.set_ylabel("residuals_lm_x1_x2")
 fig.show()
 
