@@ -15,6 +15,11 @@
 # alert with a lot of manual investigation - estimating the model gives us the
 # results, with the additional benefit of considering interactions.
 
+# todo:
+#  - rename file
+#  - clean up overview
+#  - add interaction between x1 and x2
+
 # ## References:
 
 # - [statsmodels docs on lowess](https://www.statsmodels.org/dev/generated/statsmodels.nonparametric.smoothers_lowess.lowess.html)  # noqa
@@ -244,6 +249,7 @@ fig.show()
 # )
 # assert resid_lowess.shape == (p.num_rows, 2)
 
+# todo: explain these
 m = LinearRegression().fit(residuals_lm_x1_x2.reshape(-1, 1), residuals_lm_y_x2)
 y2 = m.predict(residuals_lm_x1_x2.reshape(-1, 1))
 m.coef_
@@ -251,6 +257,10 @@ m.coef_
 
 m2 = LinearRegression().fit(X, y)
 m2.coef_
+
+
+m3 = LinearRegression().fit(X[:, 0].reshape(-1, 1), y)
+m3.coef_
 
 assert m.coef_.tolist()[0] - m2.coef_[0] < p.equality_thresh
 
@@ -267,7 +277,7 @@ ax.legend()
 fig.show()
 
 
-title = "hi"
+title = "hi"  # todo:
 fig, ax = plt.subplots()
 ax.plot(x1, y, "o", mfc="none", label="y")
 ax.plot(
