@@ -11,6 +11,8 @@
 
 5. [Simple demonstration of a random effects model](https://github.com/nayefahmad/stats-notes/blob/main/src/2022-12-15_dummy-variable-vs-random-effect.md)
 
+6. [Example of using feature engineering and modeling to avoid arbitrary data exclusions](https://github.com/nayefahmad/stats-notes/blob/main/src/2022-12-19_two-stage-lowess-regression.ipynb)
+
 ## Repo structure 
 
 - `src` directory: code files 
