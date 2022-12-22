@@ -19,6 +19,12 @@
 #  - rename file
 #  - clean up overview
 #  - add interaction between x1 and x2
+#  - show that slope of x1 in model m4 is equal to slope of x1 in model:
+#      resid(y~x2+x3) ~ resid(x1~x2+x3)
+#  - show graph of resid(y~x2+x3) vs resid(x1~x2+x3)
+#  - try to fit lowess on resid(y~x2+x3) vs resid(x1~x2+x3). Think of these as
+#      y_adjusted and x1_adjusted
+
 
 # ## References:
 
@@ -37,7 +43,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import TimeSeriesSplit, cross_val_score
 
 
 @dataclass
@@ -156,6 +162,18 @@ lm_y_x2.fit(X_categorical, y)
     lm_y_x2.score(X_categorical, y),
     cross_val_score(lm_y_x2, X_categorical, y, cv=5, scoring="r2").mean(),
 )
+
+# Time series cv might be more appropriate when trends are expected
+tscv_r2 = []
+tscv = TimeSeriesSplit(n_splits=5)
+for train, test in tscv.split(X_categorical):
+    m = LinearRegression(fit_intercept=True)
+    m.fit(X_categorical[train], y[train])
+    r2 = m.score(X_categorical[test], y[test])
+    tscv_r2.append(r2)
+np.array(tscv_r2).mean()
+
+
 predictions_lm_y_x2 = lm_y_x2.predict(X_categorical)
 residuals_lm_y_x2 = y - predictions_lm_y_x2
 
@@ -193,6 +211,18 @@ lm_x1_x2.fit(X_categorical, x1)
     lm_x1_x2.score(X_categorical, x1),
     cross_val_score(lm_x1_x2, X_categorical, x1, scoring="r2").mean(),
 )
+
+# Time series cv might be more appropriate when trends are expected
+tscv_r2 = []
+tscv = TimeSeriesSplit(n_splits=5)
+for train, test in tscv.split(X_categorical):
+    m = LinearRegression(fit_intercept=True)
+    m.fit(X_categorical[train], x1[train])
+    r2 = m.score(X_categorical[test], x1[test])
+    tscv_r2.append(r2)
+np.array(tscv_r2).mean()
+
+
 predictions_lm_x1_x2 = lm_x1_x2.predict(X_categorical)
 residuals_lm_x1_x2 = x1 - predictions_lm_x1_x2
 
@@ -289,14 +319,42 @@ m4.coef_, m4.intercept_
 m4.score(X, y)
 cross_val_score(m4, X, y, cv=5, scoring="r2").mean()
 
+# Time series cv might be more appropriate when trends are expected
+tscv_r2 = []
+tscv = TimeSeriesSplit(n_splits=5)
+for train, test in tscv.split(X):
+    m = LinearRegression(fit_intercept=True)
+    m.fit(X[train], y[train])
+    r2 = m.score(X[test], y[test])
+    tscv_r2.append(r2)
+np.array(tscv_r2).mean()
 
-title = "<hi>"
+title = r"$\bf{Using \ an \ interaction \ to \ fit \ the \ data \ better}$"
+title += "\nThink of this as feature engineering and getting a single model that better"
+title += (
+    "\nfits the data, instead of asking the user to manually play around and try to "
+)
+title += "\nfind the best feature representation"
 fig, ax = plt.subplots()
-ax.plot(x1, y, "o", mfc="none", label="")
-ax.plot(x1, predict_m4, "x", mfc="none", label="")
+ax.plot(x1, y, "o", mfc="none", label="data")
+ax.plot(x1, predict_m4, "x", mfc="none", label="fit from model y~x1:x2")
+ax.plot(
+    y_lowess[:, 0],
+    y_lowess[:, 1],
+    ".",
+    mfc="none",
+    label="fit from lowess",
+    color="salmon",
+)
+ax.plot(
+    y_lowess[:, 0],
+    y_lowess[:, 1],
+    color="salmon",
+)
 ax.set_title(title)
-ax.set_xlabel("")
-ax.set_ylabel("")
+ax.title.set_size(8)
+ax.set_xlabel("x1")
+ax.set_ylabel("y")
 ax.legend()
 fig.show()
 
@@ -327,7 +385,7 @@ ax.plot(
     color="darkorange",
 )
 ax.plot(y_lowess[:, 0], y_lowess[:, 1], color="darkorange")
-ax.plot(x1, m.coef_ * x1, color="navy")  # todo: fix this
+ax.plot(x1, m.coef_[0] * x1, color="navy")  # todo: fix this
 ax.set_title(title)
 ax.set_xlabel("x1")
 ax.set_ylabel("y")
