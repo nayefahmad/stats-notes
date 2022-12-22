@@ -37,6 +37,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import cross_val_score
 
 
 @dataclass
@@ -74,17 +75,20 @@ y = np.copy(y_no_zero_values)
 idx_for_zero_y = np.random.permutation(np.arange(len(x1)))[: p.num_zero_y]
 y[idx_for_zero_y] = 0
 
-# Set up full X matrix, including indicator for zero_y outlier events
+# Set up full X matrix, including indicator for zero_y outlier events, and interaction
+# between x1 and x2:
 
 x2 = np.zeros(p.num_rows)
 x2[idx_for_zero_y] = 1
-X = np.stack((x1, x2), axis=1)
-assert X.shape == (100, 2)
+x3 = x1 * x2
+
+X = np.stack((x1, x2, x3), axis=1)
+assert X.shape == (100, 3)
 
 # Putting it all in a df for display:
 
 df_X = pd.DataFrame(X)
-df_X.columns = ["x1", "x2"]
+df_X.columns = ["x1", "x2", "x3"]
 df_X.head(10)
 
 
@@ -146,7 +150,12 @@ X_categorical = X[:, 1].reshape(-1, 1)
 lm_y_x2 = LinearRegression(fit_intercept=True)
 lm_y_x2.fit(X_categorical, y)
 
-lm_y_x2.intercept_, lm_y_x2.coef_, lm_y_x2.score(X_categorical, y)
+(
+    lm_y_x2.intercept_,
+    lm_y_x2.coef_,
+    lm_y_x2.score(X_categorical, y),
+    cross_val_score(lm_y_x2, X_categorical, y, cv=5, scoring="r2").mean(),
+)
 predictions_lm_y_x2 = lm_y_x2.predict(X_categorical)
 residuals_lm_y_x2 = y - predictions_lm_y_x2
 
@@ -178,7 +187,12 @@ fig.show()
 lm_x1_x2 = LinearRegression(fit_intercept=True)
 lm_x1_x2.fit(X_categorical, x1)
 
-lm_x1_x2.intercept_, lm_x1_x2.coef_, lm_x1_x2.score(X_categorical, x1)
+(
+    lm_x1_x2.intercept_,
+    lm_x1_x2.coef_,
+    lm_x1_x2.score(X_categorical, x1),
+    cross_val_score(lm_x1_x2, X_categorical, x1, scoring="r2").mean(),
+)
 predictions_lm_x1_x2 = lm_x1_x2.predict(X_categorical)
 residuals_lm_x1_x2 = x1 - predictions_lm_x1_x2
 
@@ -250,21 +264,45 @@ fig.show()
 # assert resid_lowess.shape == (p.num_rows, 2)
 
 # todo: explain these
+
+# regress resid(y ~ x2) ~ resid(x1 ~ x2)
 m = LinearRegression().fit(residuals_lm_x1_x2.reshape(-1, 1), residuals_lm_y_x2)
 y2 = m.predict(residuals_lm_x1_x2.reshape(-1, 1))
 m.coef_
 
-
-m2 = LinearRegression().fit(X, y)
+# regress y ~ x1 + x2
+m2 = LinearRegression().fit(X[:, :2], y)
 m2.coef_
 
-
+# regress y ~ x1
 m3 = LinearRegression().fit(X[:, 0].reshape(-1, 1), y)
 m3.coef_
 
 assert m.coef_.tolist()[0] - m2.coef_[0] < p.equality_thresh
 
 
+# regress y ~ x1 + x2 + x3
+m4 = LinearRegression().fit(X, y)
+predict_m4 = m4.predict(X)
+m4.coef_, m4.intercept_
+
+m4.score(X, y)
+cross_val_score(m4, X, y, cv=5, scoring="r2").mean()
+
+
+title = "<hi>"
+fig, ax = plt.subplots()
+ax.plot(x1, y, "o", mfc="none", label="")
+ax.plot(x1, predict_m4, "x", mfc="none", label="")
+ax.set_title(title)
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.legend()
+fig.show()
+
+
+# todo: update this. show that slope of x1 in model m4 is equal to slope of x1 in
+#   model: resid(y~x2+x3) ~ resid(x1~x2+x3)
 title = "Second-stage lowess: running lowess on resids of lm(y~x2) vs "
 title += "\nresids of lm(x1~x2)"
 fig, ax = plt.subplots()
