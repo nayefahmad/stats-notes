@@ -16,7 +16,7 @@ Nayef
 ## 1.1 References:
 
 -   [Stack Exchange
-    post](#%20https://stats.stackexchange.com/questions/507518/is-a-random-intercept-model-exactly-the-same-as-a-linear-model-with-dummy-variab)
+    post](https://stats.stackexchange.com/questions/507518/is-a-random-intercept-model-exactly-the-same-as-a-linear-model-with-dummy-variab)
 
 **Todo:**
 

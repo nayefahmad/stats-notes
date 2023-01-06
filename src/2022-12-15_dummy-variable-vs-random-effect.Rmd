@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Overview 
 
 ## References: 
-- [Stack Exchange post](# https://stats.stackexchange.com/questions/507518/is-a-random-intercept-model-exactly-the-same-as-a-linear-model-with-dummy-variab)
+- [Stack Exchange post](https://stats.stackexchange.com/questions/507518/is-a-random-intercept-model-exactly-the-same-as-a-linear-model-with-dummy-variab)
 
 **Todo:**
 
