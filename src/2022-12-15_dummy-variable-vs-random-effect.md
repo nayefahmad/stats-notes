@@ -18,6 +18,14 @@ Nayef
 -   [Stack Exchange
     post](#%20https://stats.stackexchange.com/questions/507518/is-a-random-intercept-model-exactly-the-same-as-a-linear-model-with-dummy-variab)
 
+**Todo:**
+
+-   Which model fits better?
+-   If we want to predict with new data, and there’s a group that shows
+    up that wasn’t in the training data, does the random effects model
+    help? E.g. by assigning it a value equal to the mean of the
+    estimated “intercept distribution”?
+
 ``` r
 library(lme4)
 ```
@@ -98,6 +106,12 @@ summary(m0_dummy)
 
 ``` r
 df_m0_coef <- m0_dummy$coefficients %>% as.data.frame()
+
+# ### Convert intercepts from relative to absolute values:  
+# By default, one subject is assigned as the baseline, and all other
+# subject intercepts are shown as deviations from the baseline. 
+# Here, we convert all subject intercepts to absolute values. 
+
 baseline_intercept <- df_m0_coef[1,1]
 df_m0_coef <- df_m0_coef %>% 
   mutate(group_intercept = ifelse(. != baseline_intercept,
