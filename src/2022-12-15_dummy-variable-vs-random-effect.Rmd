@@ -33,6 +33,12 @@ m0_dummy <- lm(Reaction ~ Subject, data = sleepstudy)
 summary(m0_dummy)
 
 df_m0_coef <- m0_dummy$coefficients %>% as.data.frame()
+
+# ### Convert intercepts from relative to absolute values:  
+# By default, one subject is assigned as the baseline, and all other
+# subject intercepts are shown as deviations from the baseline. 
+# Here, we convert all subject intercepts to absolute values. 
+
 baseline_intercept <- df_m0_coef[1,1]
 df_m0_coef <- df_m0_coef %>% 
   mutate(group_intercept = ifelse(. != baseline_intercept,
