@@ -18,10 +18,10 @@
 # todo:
 #  - rename file
 #  - clean up overview
-#  - add interaction between x1 and x2
-#  - show that slope of x1 in model m4 is equal to slope of x1 in model:
-#      resid(y~x2+x3) ~ resid(x1~x2+x3)
-#  - show graph of resid(y~x2+x3) vs resid(x1~x2+x3)
+#  - ~add interaction between x1 and x2~
+#  - ~show that slope of x1 in model m4 is equal to slope of x1 in model:~
+#      ~resid(y~x2+x3) ~ resid(x1~x2+x3)~
+#  - ~show graph of resid(y~x2+x3) vs resid(x1~x2+x3)~
 #  - try to fit lowess on resid(y~x2+x3) vs resid(x1~x2+x3). Think of these as
 #      y_adjusted and x1_adjusted
 
@@ -308,6 +308,8 @@ m2.coef_
 m3 = LinearRegression().fit(X[:, 0].reshape(-1, 1), y)
 m3.coef_
 
+# This shows that slope of the line in resid(y ~ x2) vs resid(x1 ~ x2) is equal to the
+# coefficient of x1 in y ~ x1 + x2
 assert m.coef_.tolist()[0] - m2.coef_[0] < p.equality_thresh
 
 
@@ -315,6 +317,33 @@ assert m.coef_.tolist()[0] - m2.coef_[0] < p.equality_thresh
 m4 = LinearRegression().fit(X, y)
 predict_m4 = m4.predict(X)
 m4.coef_, m4.intercept_
+
+
+# get resid(y ~ x2 + x3)
+m4_0 = LinearRegression().fit(X[:, 1:], y)
+predictions_m4_0 = m4_0.predict(X[:, 1:])
+residuals_m4_0 = y - predictions_m4_0
+
+# get resid(x1 ~ x2 + x3)
+m4_1 = LinearRegression().fit(X[:, 1:], X[:, 0])
+predictions_m4_1 = m4_1.predict(X[:, 1:])
+residuals_m4_1 = X[:, 0] - predictions_m4_1
+
+# regress resid(y ~ x2 + x3) vs resid(x1 ~ x2 + x3)
+
+title = "Added variable plot \n'resid(y ~ x2 + x3) vs resid(x1 ~ x2 + x3)'"
+fig, ax = plt.subplots()
+ax.plot(residuals_m4_1, residuals_m4_0, "o", mfc="none", label="series_01")
+ax.set_title(title)
+ax.set_xlabel('"x1-adjusted"')
+ax.set_ylabel('"y-adjusted"')
+fig.show()
+
+m4_3 = LinearRegression().fit(residuals_m4_1.reshape(-1, 1), residuals_m4_0)
+m4_3.coef_
+
+assert m4.coef_.tolist()[0] - m4_3.coef_ < p.equality_thresh
+
 
 m4.score(X, y)
 cross_val_score(m4, X, y, cv=5, scoring="r2").mean()
