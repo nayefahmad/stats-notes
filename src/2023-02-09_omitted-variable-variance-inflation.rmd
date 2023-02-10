@@ -1,0 +1,58 @@
+---
+title: "Omitted variable variance inflation"
+author: "Nayef"
+date: "2/9/2023"
+output: 
+   github_document: 
+     toc: true
+     number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview 
+
+Even with perfect randomization there can be advantages to including additional 
+covariates/predictors. I like to think of this as "omitted variable variance 
+inflation" (as opposed to omitted variable bias). 
+
+
+## References: 
+- [Stack Exchange](https://stats.stackexchange.com/questions/83277/using-control-variables-in-experiments/83279#83279)
+
+
+```{r}
+library(broom)
+library(magrittr)
+
+# set the number of observations to 100
+n_obs <- 100
+
+# generate the treatment variable with values 0 or 1
+treat <- rep(c(0,1), times = n_obs/2)
+
+# generate random variable x
+x <- rnorm(n_obs)
+
+# generate outcome variable y
+y <- 2 + 3 * treat + 1 * x + rnorm(n_obs)
+
+# run regression 1 
+fit <- lm(y ~ treat)
+tidy(fit)
+
+# run regression 2 
+fit2 <- lm(y ~ treat + x)
+tidy(fit2)
+
+
+# residual plots 
+par(mfrow=c(2,1))
+resid(fit) %>% hist(xlim=c(-8,8), main='y ~ treat')
+resid(fit2) %>% hist(xlim=c(-8,8), main='y ~ treat + x')
+
+
+```
+
