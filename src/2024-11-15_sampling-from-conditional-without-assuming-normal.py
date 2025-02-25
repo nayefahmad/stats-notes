@@ -3,7 +3,7 @@ This shows that in the presence of a trend, we have to model the trend in order 
 simulate future data points correctly.
 
 The added complication here is that we can't assume the conditional distribution is
-normal.
+normal. As an example, the simulated data here is conditionally Weibull-distributed.
 """
 
 from pathlib import Path
@@ -11,27 +11,27 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import statsmodels.formula.api as sm
-from scipy.stats import norm
+from scipy.stats import norm, weibull_min
 from sklearn.neighbors import KernelDensity
 
 # 1. Simulate data with Weibull-distributed error
-np.random.seed(2024)
+np.random.seed(2021)
 max_x_in_training_data = 10
 n = 100
 x = np.random.rand(n) * max_x_in_training_data
 shape_param = 0.7  # Shape parameter of the Weibull distribution
 scale_param = 10  # Scale parameter of the Weibull distribution
-error = (
-    np.random.weibull(shape_param, n) * scale_param
-)  # Generate Weibull-distributed errors
-y = 2 * x + 1 + error  # Generate dependent variable
+
+# Generate Weibull-distributed errors
+error = weibull_min(c=shape_param, scale=scale_param, loc=0).rvs(size=n)
+y = 2 * x + error  # Generate dependent variable
 
 # 2. Fit regression model
 data = {"x": x, "y": y}
 model = sm.ols("y ~ x", data=data).fit()
 
 # 3. Nonparametric conditional distribution using KDE
-x_0 = max_x_in_training_data + np.abs(np.random.randn(100) * max_x_in_training_data)
+x_0 = max_x_in_training_data + np.abs(np.random.randn(n) * max_x_in_training_data)
 y_pred = model.predict({"x": x_0})
 
 # # Assuming conditional distribution is normal :
@@ -46,10 +46,10 @@ residuals = np.array(y - model.predict(data))
 kde = KernelDensity(kernel="gaussian", bandwidth=1.0)
 kde.fit(residuals.reshape(-1, 1))  # KDE requires 2D input
 
-# Sample from KDE once
+# Sample from KDE
 residual_samples = kde.sample(n_samples=1000).flatten()
 
-replot = False
+replot = True
 if replot:
     txt = "Distribution of points sampled from model residuals"
     plt.hist(residual_samples)
