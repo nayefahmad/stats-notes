@@ -160,14 +160,10 @@ if __name__ == "__main__":
         ax[idx].set_xlim(0, 3)  # Set x-axis limits
         ax[idx].set_title(titles[idx])
     plt.tight_layout()
-    plt.suptitle(f'True shape={beta_true}')
+    plt.suptitle(f"True shape={beta_true}")
     plt.show()
 
     print("Custom t_p approach: bias = {:.4f}, RMSE = {:.4f}".format(bias_tp, rmse_tp))
-    print(
-        "SciPy approach: bias = {:.4f}, RMSE = {:.4f}".format(
-            bias_scipy, rmse_scipy
-        )
-    )
+    print("SciPy approach: bias = {:.4f}, RMSE = {:.4f}".format(bias_scipy, rmse_scipy))
     print("Reliability approach:", end=" ")
     print("bias = {:.4f}, RMSE = {:.4f}".format(bias_rel, rmse_rel))
