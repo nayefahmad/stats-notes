@@ -101,7 +101,10 @@ if __name__ == "__main__":
 
             ax.set_xlabel("Time")
             ax.set_ylabel("Survival Probability")
-            ax.set_title("Kaplan-Meier Survival Curve with Censored Points")
+            ax.set_title(
+                f"Kaplan-Meier Survival Curve with Censored Points"
+                f"\nTrue shape={beta_true}"
+            )
             ax.legend()
             ax.grid()
             plt.show()
@@ -157,11 +160,12 @@ if __name__ == "__main__":
         ax[idx].set_xlim(0, 3)  # Set x-axis limits
         ax[idx].set_title(titles[idx])
     plt.tight_layout()
+    plt.suptitle(f'True shape={beta_true}')
     plt.show()
 
     print("Custom t_p approach: bias = {:.4f}, RMSE = {:.4f}".format(bias_tp, rmse_tp))
     print(
-        "SciPy approach:      bias = {:.4f}, RMSE = {:.4f}".format(
+        "SciPy approach: bias = {:.4f}, RMSE = {:.4f}".format(
             bias_scipy, rmse_scipy
         )
     )
