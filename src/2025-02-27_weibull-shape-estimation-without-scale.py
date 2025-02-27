@@ -117,7 +117,7 @@ if __name__ == "__main__":
             _, beta_tp = fit_tp_method(t_obs, d, p_val, init=init_tp)
         except Exception as e:
             beta_tp = np.nan
-            print(f'Error: {e}')
+            print(f"Error: {e}")
         beta_est_tp.append(beta_tp)
 
         # --- Method 2: SciPy's weibull_min.fit ---
@@ -128,7 +128,7 @@ if __name__ == "__main__":
             beta_scipy = c  # shape parameter returned by SciPy
         except Exception as e:
             beta_scipy = np.nan
-            print(f'Error: {e}')
+            print(f"Error: {e}")
         beta_est_scipy.append(beta_scipy)
 
         # --- Method 3: Reliability package fit ---
@@ -137,7 +137,7 @@ if __name__ == "__main__":
             beta_rel = fit.beta
         except Exception as e:
             beta_rel = np.nan
-            print(f'Error: {e}')
+            print(f"Error: {e}")
         beta_est_rel.append(beta_rel)
 
     # Convert to NumPy arrays for analysis:
