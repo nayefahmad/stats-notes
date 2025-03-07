@@ -1,5 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.interpolate import make_lsq_spline
 
 # Generate synthetic data
@@ -27,7 +27,9 @@ slope_left, slope_right = spline.derivative(1)(X_left), spline.derivative(1)(X_r
 
 # Apply linear extension beyond the observed range
 y_pred[X_new < X_left] = spline(X_left) + slope_left * (X_new[X_new < X_left] - X_left)
-y_pred[X_new > X_right] = spline(X_right) + slope_right * (X_new[X_new > X_right] - X_right)
+y_pred[X_new > X_right] = spline(X_right) + slope_right * (
+    X_new[X_new > X_right] - X_right
+)
 
 # Plot results
 plt.scatter(X, y, label="Observed data", color="black")
